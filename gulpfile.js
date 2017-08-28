@@ -2,17 +2,25 @@
 // grab our gulp packages
 var gulp = require("gulp");
 var gutil = require("gulp-util");
-var jshint = require("gulp-jshint");
 var sourcemaps = require("gulp-sourcemaps");
 var sass = require("gulp-sass");
 var uglify = require("gulp-uglify");
+var browserSync = require("browser-sync");
+var eslint = require("gulp-eslint");
 
-gulp.task("default", ["watch"]);
+gulp.task("default", ["watch", "browser-sync"]);
 
-gulp.task("jshint", function () {
+gulp.task("browser-sync", function () {
+    browserSync.init({
+        server: "./"
+    })
+});
+
+gulp.task("eslint", function () {
     return gulp.src("source/javascript/**/*.js")
-        .pipe(jshint())
-        .pipe(jshint.reporter("jshint-stylish"));
+        .pipe(eslint())
+        .pipe(eslint.format())
+        .pipe(eslint.failAfterError());
 });
 
 gulp.task("build-css", function () {
@@ -32,14 +40,7 @@ gulp.task("build-js", function () {
 });
 
 gulp.task("watch", function () {
-    gulp.watch("source/javascript/**/*.js", ["jshint"]);
+    gulp.watch("source/javascript/**/*.js", ["eslint", "build-js"]);
     gulp.watch("source/scss/**/*.scss", ["build-css"]);
+    gulp.watch(["public/assets/**", "index.html"]).on("change", browserSync.reload);
 });
-
-
-
-
-
-
-
-
